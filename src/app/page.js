@@ -1,95 +1,79 @@
+'use client'
 import Image from 'next/image'
 import styles from './page.module.css'
+import * as Yup from 'yup'
+import { Formik, Form } from 'formik'
+import InputField from '@/components/inputField'
+
+const calculateAge = (birthday) => {
+  const ageDifMs = Date.now() - birthday
+  const ageDate = new Date(ageDifMs)
+  return Math.abs(ageDate.getUTCFullYear() - 1970)
+}
+
+const SignUpSchema = Yup.object().shape({
+  login: Yup.string()
+    .min(6, 'Login is too short')
+    .max(16, 'Login must be shorter the 16')
+    .matches(/^[0-9a-zA-Z_/\-/.]+$/, 'Forbidden symbols')
+    .required(),
+  email: Yup.string().email('Plase enter right email').required('Required'),
+  birthday: Yup.date()
+    .test('birthday', 'Please choose a valid date of birth', (value) => {
+      return calculateAge(new Date(value)) > 18
+    })
+    .required('Birthday is required'),
+})
 
 export default function Home() {
+  const handleSubmit = (values) => {
+    console.log(values.login)
+  }
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+    <section className="sign-up">
+      <Formik
+        initialValues={{
+          login: '',
+          email: '',
+          birthday: '',
+        }}
+        validationSchema={SignUpSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ values, errors, touched, handleChange }) => (
+          <Form className="sign-up__form">
+            <InputField
+              error={errors.login}
+              values={values.login}
+              handleChange={handleChange}
+              touched={touched.login}
+              placeholder="login"
+              type="text"
+              name="email"
             />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+            <InputField
+              error={errors.email}
+              values={values.email}
+              handleChange={handleChange}
+              touched={touched.email}
+              placeholder="email"
+              type="text"
+              name="email"
+            />
+            <InputField
+              error={errors.birthday}
+              values={values.birthday}
+              handleChange={handleChange}
+              touched={tadatebirthday}
+              placeholder="date"
+              type="date"
+              name="birthday"
+            />
+            <button type="submit">Sign-Up</button>
+          </Form>
+        )}
+      </Formik>
+    </section>
   )
 }
